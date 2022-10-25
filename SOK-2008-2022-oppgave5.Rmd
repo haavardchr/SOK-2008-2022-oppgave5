@@ -49,14 +49,21 @@ innvandrere <- innvandrere %>%
   group_by(år) %>% 
   mutate(sum = sum(value),
          andel = value/sum,
-         andel = andel*100)
+         andel = round(andel*100, digits = 1)) %>% 
+  select(-sum)
 
 ggplot(innvandrere, aes(x = andel, y = år, fill = landbakgrunn)) +
   geom_col() +
-  labs(x = "Prosent",
+  geom_text(aes(label = paste0(andel, '%')), 
+            position = position_stack(vjust = 0.5), color = "black", size = 2) +
+  labs(x = "",
        y = "",
        title = "Innvandring i prosent 2005 til 2022") +
-  scale_fill_discrete(name = "Verdensdeler")
+  scale_fill_discrete(name = "Verdensdeler") +
+    theme(legend.key.height= unit(0.1, 'cm'),
+        legend.key.width= unit(0.1, 'cm'),
+        legend.text = element_text(size=5),
+        legend.title = element_text(size=10))
 ```
 
 ## 2.
@@ -81,13 +88,21 @@ sektorer <-
 sektorer <- as.tibble(sektorer[[1]])
 
 sektorer <- sektorer %>% 
-  select(`næring (SN2007)`, value)
+  select(`næring (SN2007)`, value) %>% 
+  arrange(desc(value))
 
 sektorer$`næring (SN2007)` <- gsub(".*\\.", "", sektorer$`næring (SN2007)`)
 
-ggplot(sektorer[-1,], aes(x = value, y =`næring (SN2007)`, fill = `næring (SN2007)`)) +
+
+sektorer[-1,] %>%
+  ggplot(aes(x = `næring (SN2007)`, y = value, fill = `næring (SN2007)`)) +
   geom_col(show.legend = FALSE) +
   labs(x = "",
        y = "",
-       title = "Næringslivssektor blant innvandrere fra EU-land i Øst-Europa")
+       title = "Næringslivssektor blant innvandrere fra EU-land i Øst-Europa") +
+  theme(text = element_text(size=7),
+        axis.text.x = element_text(angle=90, hjust=1))
 ```
+
+
+
